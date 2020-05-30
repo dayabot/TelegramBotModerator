@@ -31,3 +31,9 @@ updater.start_polling()
 @app.route('/hook', methods=['POST'])
 def hello_world():
     return 'Hello World!'
+
+
+@app.route('/', methods=['GET'])
+def hello_world():
+    return 'hello'
+
