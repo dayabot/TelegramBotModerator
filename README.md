@@ -11,10 +11,10 @@
 ### 三、管理员通过指令对用户进行封禁、解禁操作
 封禁/解禁/查询，两种方式：   
 #### 方式一：回复用户的消息进行封禁/解禁
-![image.png](https://i.loli.net/2020/05/30/8wdJ2uMjDBcNUvQ.png | width=100)
+![image.png](https://i.loli.net/2020/05/30/8wdJ2uMjDBcNUvQ.png)
 
 #### 方式二：直接 at 用户进行封禁/解禁
-![image.png](https://i.loli.net/2020/05/30/YR1sBAiaImbQk9l.png | width=100)
+![image.png](https://i.loli.net/2020/05/30/YR1sBAiaImbQk9l.png)
 
 被封禁用户会在所有机器人所在群中被踢出 
 开发中...
