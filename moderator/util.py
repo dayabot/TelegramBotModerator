@@ -72,4 +72,4 @@ def ids_from_mentions(message):
 
 
 def reply(update, msg):
-    update.message.reply_text(msg, parse_mode=ParseMode.MARKDOWN_V2)
+    update.message.reply_text(msg, parse_mode=ParseMode.MARKDOWN)

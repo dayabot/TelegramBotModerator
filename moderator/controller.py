@@ -4,11 +4,21 @@ from telegram import Update, Bot
 from moderator.model.model import TelegramUser
 from moderator.util import get_chat_id_and_users, logger, reply
 
-TIP_TEMPLATE = "直接回复消息或 at 用户名，"
+TIP_TEMPLATE = "回复消息或at用户名"
+
+HELP = f"""
+强大的黑名单机器人，精准定位，全球封杀🔞：
+
+*限管理员操作*（{TIP_TEMPLATE}触发）:
+ - /help: 查看帮助
+ - /ban <用户>: 封禁某个用户，自动踢出所有机器人所在群组
+ - /unban <用户>: 解除封禁某个用户
+ - /id <用户>: 查询某用户封禁状态
+"""
 
 
 def start(bot: Bot, update: Update):
-    reply(update, '👋👋👋')
+    reply(update, HELP)
 
 
 def ban(bot: Bot, update: Update):
