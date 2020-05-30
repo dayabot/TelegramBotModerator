@@ -1,8 +1,8 @@
 {
-  "name": "Weather Forecast Telegram Bot",
-  "description": "A telegram bot posting weather everyday.",
+  "name": "Group Admin Telegram Bot",
+  "description": "A telegram bot manage group.",
   "image": "heroku/python",
-  "repository": "https://github.com/dayabot/TelegramWeatherBot",
+  "repository": "https://github.com/dayabot/TelegramBotModerator",
   "keywords": [
     "python",
     "flask"
