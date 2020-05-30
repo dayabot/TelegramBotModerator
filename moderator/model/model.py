@@ -1,8 +1,12 @@
 # -*- coding: utf-8 -*-
+import logging
 
 from sqlalchemy import Column
 
 from ..app import db
+
+logging.basicConfig(format='%(asctime)s - %(name)s - %(levelname)s - %(message)s', level=logging.INFO)
+logger = logging.getLogger(__name__)
 
 
 class TelegramUser(db.Model):
@@ -43,6 +47,14 @@ class TelegramUser(db.Model):
     def is_active(username):
         instance = db.session.query(TelegramUser).filter_by(username=username).first()
         return instance and instance.status is True
+
+    @staticmethod
+    def set_status(user_id, status):
+        user = TelegramUser.query.filter_by(user_id=user_id).first()
+        if user:
+            user.status = status
+            db.session.commit()
+            logger.info(f"{user} status updated to {user.status}")
 
     def __repr__(self):
         return '<User %r>' % self.username

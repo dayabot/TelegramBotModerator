@@ -22,6 +22,7 @@ def ban(bot: Bot, update: Update):
         try:
             if user.user_id:
                 bot.kick_chat_member(chat_id, user_id=user.user_id)
+                TelegramUser.set_status(user.user_id, False)
                 reply(update, f'已将该用户全球封杀！')
             else:
                 reply(update, '用户尚未发言，暂时无法踢出。')
@@ -39,7 +40,7 @@ def unban(bot: Bot, update: Update):
         try:
             if user.user_id:
                 bot.unban_chat_member(chat_id, user_id=user.user_id)
-
+                TelegramUser.set_status(user.user_id, True)
                 reply(update, '知错能改，已将该用户解封！')
             else:
                 reply(update, '未找到该用户，请联系管理员排查')

@@ -39,7 +39,7 @@ def get_chat_id_and_users(update: Update):
         if d_user:
             all_users.append(build_user(d_user))
         else:
-            all_users.append(User(username=mentioned_username, user_id=0, is_active=False))
+            all_users.append(User(username=mentioned_username, user_id=0, is_active=True))
 
     return chat_id, all_users
 
