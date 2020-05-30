@@ -3,7 +3,6 @@ import logging
 
 # Enable logging
 from telegram import Update, MessageEntity
-from telegram.ext import CallbackContext
 
 logging.basicConfig(format='%(asctime)s - %(name)s - %(levelname)s - %(message)s', level=logging.INFO)
 logger = logging.getLogger(__name__)
@@ -14,8 +13,7 @@ def error(update, context):
     logger.warning('Update "%s" caused error "%s"', update, context.error)
 
 
-def handle_context(update: Update, context: CallbackContext):
-    bot = context.bot
+def get_chat_id_and_user_ids(update: Update):
     message = update.message
     chat_id = message.chat.id
 
@@ -31,7 +29,7 @@ def handle_context(update: Update, context: CallbackContext):
     if mentioned_usernames:
         user_ids += mentioned_usernames
 
-    return bot, chat_id, user_ids
+    return chat_id, user_ids
 
 
 def id_from_reply(message):

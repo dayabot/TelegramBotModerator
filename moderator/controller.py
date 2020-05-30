@@ -1,16 +1,15 @@
 # -*- coding: utf-8 -*-
-from telegram import Update
-from telegram.ext import CallbackContext
+from telegram import Update, Bot
 
-from moderator.util import handle_context
+from moderator.util import get_chat_id_and_user_ids
 
 
-def start(update, context):
+def start(bot: Bot, update: Update):
     update.message.reply_text('👋👋👋')
 
 
-def ban(update: Update, context: CallbackContext):
-    bot, chat_id, user_ids = handle_context(update, context)
+def ban(bot: Bot, update: Update):
+    chat_id, user_ids = get_chat_id_and_user_ids(update)
 
     if not user_ids:
         update.message.reply_text('直接回复用户消息进行踢出～')
@@ -23,8 +22,8 @@ def ban(update: Update, context: CallbackContext):
             update.message.reply_text(str(e))
 
 
-def unban(update: Update, context: CallbackContext):
-    bot, chat_id, user_ids = handle_context(update, context)
+def unban(bot: Bot, update: Update):
+    bot, chat_id, user_ids = get_chat_id_and_user_ids(update)
 
     if not user_ids:
         update.message.reply_text('直接回复用户消息进行解冻')
@@ -37,17 +36,17 @@ def unban(update: Update, context: CallbackContext):
             update.message.reply_text(str(e))
 
 
-def get_status(update: Update, context: CallbackContext):
-    bot, chat_id, user_ids = handle_context(update, context)
+def get_status(bot: Bot, update: Update):
+    bot, chat_id, user_ids = get_chat_id_and_user_ids(update)
 
     for user_id in user_ids:
         try:
             # bot.get_chat_member(chat_id, user_id=user_id)
-            update.message.reply_text(f'用户状态：正常')
+            update.message.reply_text('用户状态：正常')
         except Exception as e:
             update.message.reply_text(str(e))
 
 
-def reply_handler(update: Update, context: CallbackContext):
+def reply_handler(bot: Bot, update: Update):
     user = update.message.from_user
     pass
