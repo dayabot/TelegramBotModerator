@@ -2,6 +2,7 @@
 from telegram import Update, Bot
 
 from moderator.model.model import TelegramUser
+from moderator.permision import admin
 from moderator.util import get_chat_id_and_users, logger, reply
 
 TIP_TEMPLATE = "回复消息或at用户名"
@@ -11,9 +12,9 @@ HELP = f"""
 
 *限管理员操作*（{TIP_TEMPLATE}触发）:
  - /help: 查看帮助
- - /ban <用户>: 封禁某个用户，自动踢出所有机器人所在群组
- - /unban <用户>: 解除封禁某个用户
- - /id <用户>: 查询某用户封禁状态
+ - /ban <用户>: 封禁某个用户，自动踢出所有机器人所在群组(管理)
+ - /unban <用户>: 解除封禁某个用户(管理)
+ - /id <用户>: 查询某用户封禁状态(管理)
 """
 
 
@@ -21,6 +22,7 @@ def start(bot: Bot, update: Update):
     reply(update, HELP)
 
 
+@admin
 def ban(bot: Bot, update: Update):
     logger.info("ban user...")
     chat_id, users = get_chat_id_and_users(update)
@@ -41,6 +43,7 @@ def ban(bot: Bot, update: Update):
     logger.info("ban user done!!!")
 
 
+@admin
 def unban(bot: Bot, update: Update):
     logger.info("unban user...")
     chat_id, users = get_chat_id_and_users(update)
@@ -59,6 +62,7 @@ def unban(bot: Bot, update: Update):
     logger.info("unban user done!!!")
 
 
+@admin
 def get_status(bot: Bot, update: Update):
     logger.info("get_status user...")
     chat_id, users = get_chat_id_and_users(update)

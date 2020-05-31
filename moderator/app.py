@@ -1,23 +1,25 @@
 import os
 
-import telegram
 from flask import Flask, request
 from flask_migrate import Migrate
 from flask_sqlalchemy import SQLAlchemy
-from telegram.ext import CommandHandler, MessageHandler, Filters, Dispatcher
 
 app = Flask(__name__)
 app.config['SQLALCHEMY_DATABASE_URI'] = os.environ['DATABASE_URL']
+app.config['SQLALCHEMY_TRACK_MODIFICATIONS'] = False
 db = SQLAlchemy(app)
+
+import telegram
+from telegram.ext import CommandHandler, MessageHandler, Filters, Dispatcher
+
+TOKEN = os.environ['TELEGRAM_TOKEN']
+bot = telegram.Bot(token=TOKEN)
 
 from moderator.controller import start, ban, unban, get_status, reply_handler
 
 migrate = Migrate(app, db)
 
-TOKEN = os.environ['TELEGRAM_TOKEN']
-bot = telegram.Bot(token=TOKEN)
 dp = Dispatcher(bot, None, workers=10)
-
 # on different commands - answer in Telegram
 dp.add_handler(CommandHandler("help", start))
 dp.add_handler(CommandHandler("ban", ban))
