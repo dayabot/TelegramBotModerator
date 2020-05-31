@@ -71,5 +71,5 @@ def ids_from_mentions(message):
     return ids
 
 
-def reply(update, msg):
-    update.message.reply_text(msg, parse_mode=ParseMode.MARKDOWN)
+def send_message(bot, chat_id, msg):
+    bot.send_message(chat_id, msg, parse_mode=ParseMode.MARKDOWN)

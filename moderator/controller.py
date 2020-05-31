@@ -1,9 +1,9 @@
 # -*- coding: utf-8 -*-
-from telegram import Update, Bot
+from telegram import Update, Bot, ParseMode
 
 from moderator.model.model import TelegramUser
 from moderator.permision import admin
-from moderator.util import get_chat_id_and_users, logger, reply
+from moderator.util import get_chat_id_and_users, logger, send_message
 
 TIP_TEMPLATE = "回复消息或at用户名"
 
@@ -19,7 +19,9 @@ HELP = f"""
 
 
 def start(bot: Bot, update: Update):
-    reply(update, HELP)
+    message = update.message
+    chat_id = message.chat.id
+    bot.send_message(chat_id, HELP, parse_mode=ParseMode.MARKDOWN)
 
 
 @admin
@@ -28,18 +30,18 @@ def ban(bot: Bot, update: Update):
     chat_id, users = get_chat_id_and_users(update)
 
     if not users:
-        reply(update, TIP_TEMPLATE + '进行踢出～')
+        send_message(bot, chat_id, TIP_TEMPLATE + '进行踢出～')
 
     for user in users:
         try:
             if user.user_id:
                 bot.kick_chat_member(chat_id, user_id=user.user_id)
                 TelegramUser.set_status(user.user_id, False)
-                reply(update, f'已将该用户全球封杀！')
+                send_message(bot, chat_id, f'已将该用户 {user.mention()} 全球封杀！')
             else:
-                reply(update, '用户尚未发言，暂时无法踢出。')
+                send_message(bot, chat_id, '用户尚未发言，暂时无法踢出。')
         except Exception as e:
-            reply(update, str(e))
+            send_message(bot, chat_id, str(e))
     logger.info("ban user done!!!")
 
 
@@ -48,17 +50,17 @@ def unban(bot: Bot, update: Update):
     logger.info("unban user...")
     chat_id, users = get_chat_id_and_users(update)
     if not users:
-        reply(update, TIP_TEMPLATE + '进行解冻')
+        send_message(bot, chat_id, TIP_TEMPLATE + '进行解冻')
     for user in users:
         try:
             if user.user_id:
                 bot.unban_chat_member(chat_id, user_id=user.user_id)
                 TelegramUser.set_status(user.user_id, True)
-                reply(update, '知错能改，已将该用户解封！')
+                send_message(bot, chat_id, '知错能改，已将该用户解封！')
             else:
-                reply(update, '未找到该用户，请联系管理员排查')
+                send_message(bot, chat_id, '未找到该用户，请联系管理员排查')
         except Exception as e:
-            reply(update, str(e))
+            send_message(bot, chat_id, str(e))
     logger.info("unban user done!!!")
 
 
@@ -68,11 +70,11 @@ def get_status(bot: Bot, update: Update):
     chat_id, users = get_chat_id_and_users(update)
 
     if not users:
-        reply(update, TIP_TEMPLATE + '进行用户状态查看')
+        send_message(bot, chat_id, TIP_TEMPLATE + '进行用户状态查看')
 
     for user in users:
         status = "正常👏👏" if user.is_active else "封印中🔞🔞"
-        reply(update, f'该用户的状态：{status}')
+        send_message(bot, chat_id, f'该用户的状态：{status}')
 
     logger.info("get_status done!!")
 
