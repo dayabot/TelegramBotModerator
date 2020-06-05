@@ -55,7 +55,7 @@ class AllChats:
 
                 bot.unban_chat_member(chat_id, user_id=user.user_id)
                 TelegramUser.set_status(user.user_id, True)
-                send_message(bot, chat_id, '知错能改，已将该用户解封！')
+                send_message(bot, chat_id, f'知错能改，已将该用户 {user.mention()} 解封！')
             except Exception as e:
                 logger.error(e, f"{str(e)}")
 
