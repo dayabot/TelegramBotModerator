@@ -2,6 +2,7 @@
 
 from telegram.chatmember import ChatMember
 
+from moderator.message import send_message
 from moderator.model.model import TelegramChat, AllChats
 
 
@@ -17,7 +18,7 @@ def admin(f):
             TelegramChat.add(message.chat.id, message.chat.title)
 
         if chat_member.status not in (ChatMember.CREATOR, ChatMember.ADMINISTRATOR):
-            update.message.reply_text("对不起, 您无管理员权限")
+            send_message(bot, chat_id, "对不起, 您无管理员权限")
             return
 
     return wrapper
