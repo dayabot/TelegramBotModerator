@@ -39,7 +39,6 @@ class AllChats:
             chat_id = chat.chat_id
             try:
                 if not user.user_id:
-                    # 只有当前群组回复
                     chat_id == current_chat_id and send_message(bot, chat_id, '用户尚未发言，暂时无法踢出。')
                     continue
 
@@ -49,7 +48,7 @@ class AllChats:
                 send_message(bot, chat_id, f'已将该用户 {user.mention()} 全球封杀')
 
             except Exception as e:
-                if "Not enough rights" in str(e):
+                if "Not enough rights" in str(e) or "admin" in str(e):
                     send_message(bot, chat_id, "⚠️ 当前机器人权限不足～")
                 else:
                     logger.error(e, f"{str(e)}")
@@ -62,11 +61,12 @@ class AllChats:
                 if not user.user_id:
                     chat_id == current_chat_id and send_message(bot, chat_id, '未找到该用户，请联系管理员排查')
                     continue
+
                 bot.unban_chat_member(chat_id, user_id=user.user_id)
                 TelegramUser.set_status(user.user_id, True)
                 send_message(bot, chat_id, '知错能改，已将该用户解封！')
             except Exception as e:
-                send_message(bot, chat_id, str(e))
+                logger.error(e, f"{str(e)}")
 
 
 class TelegramUser(db.Model):

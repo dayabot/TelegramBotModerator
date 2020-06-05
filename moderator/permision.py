@@ -17,6 +17,7 @@ def admin(f):
         if chat_id not in AllChats.get_chat_ids():
             TelegramChat.add(message.chat.id, message.chat.title)
 
+        # 用户必须是管理员才可以操作
         if chat_member.status not in (ChatMember.CREATOR, ChatMember.ADMINISTRATOR):
             send_message(bot, chat_id, "对不起, 您无管理员权限")
             return
