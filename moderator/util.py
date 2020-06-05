@@ -5,7 +5,7 @@ import logging
 from telegram import Update, MessageEntity
 
 from moderator.core.User import User
-from moderator.model.model import TelegramUser, AllChats, TelegramChat
+from moderator.model.model import TelegramUser
 
 logging.basicConfig(format='%(asctime)s - %(name)s - %(levelname)s - %(message)s', level=logging.INFO)
 logger = logging.getLogger(__name__)
@@ -21,10 +21,6 @@ def get_chat_id_and_users(update: Update):
 
     message = update.message
     chat_id = message.chat.id
-
-    # 增加当前用户组至数据库
-    if chat_id not in AllChats.get_chat_ids():
-        TelegramChat.add(message.chat.id, message.chat.title)
 
     # 1. 直接回复的情况
     replay_user_id, replay_username = id_from_reply(message)
