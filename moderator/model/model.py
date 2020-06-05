@@ -2,6 +2,7 @@
 import logging
 
 from sqlalchemy import Column
+from telegram.error import BadRequest
 
 from ..app import db
 from ..message import send_message
@@ -47,6 +48,8 @@ class AllChats:
                 bot.kick_chat_member(chat_id, user_id=user.user_id)
                 TelegramUser.set_status(user.user_id, False)
                 send_message(bot, chat_id, f'已将该用户 {user.mention()} 全球封杀')
+            except BadRequest as e:
+                logger.error(e, "bad chat id does not exist !!!!!")
             except Exception as e:
                 send_message(bot, chat_id, str(e))
 

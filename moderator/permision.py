@@ -21,4 +21,6 @@ def admin(f):
             send_message(bot, chat_id, "对不起, 您无管理员权限")
             return
 
+        f(bot, update)
+
     return wrapper
