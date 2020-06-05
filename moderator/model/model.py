@@ -23,8 +23,7 @@ class AllChats:
 
     @staticmethod
     def refresh_chats():
-        session = db.session
-        AllChats.available_chats = session.query(TelegramChat).all()
+        AllChats.available_chats = AllChats.get_chat_ids()
 
     @staticmethod
     def ban(bot, current_chat_id, user):
@@ -55,9 +54,10 @@ class AllChats:
 
                 bot.unban_chat_member(chat_id, user_id=user.user_id)
                 TelegramUser.set_status(user.user_id, True)
-                send_message(bot, chat_id, f'知错能改，已将该用户 {user.mention()} 解封！')
             except Exception as e:
                 logger.error(e, f"{str(e)}")
+            finally:
+                send_message(bot, chat_id, f'知错能改，已将该用户 {user.mention()} 从黑名单中移除。')
 
 
 class TelegramUser(db.Model):
@@ -73,7 +73,7 @@ class TelegramUser(db.Model):
         if instance:
             return instance, False
         else:
-            session.add(cls(user_id=user_id, username=username))
+            instance = session.add(cls(user_id=user_id, username=username))
             session.commit()
             logger.info(f"User {user_id} {username} created!!!")
             return instance, True
