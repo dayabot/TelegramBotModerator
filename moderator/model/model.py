@@ -15,18 +15,11 @@ class AllChats:
     available_chats = None
 
     @staticmethod
-    def get_chats():
-        session = db.session
-        if not AllChats.available_chats:
-            AllChats.available_chats = session.query(TelegramChat).all()
-        return AllChats.available_chats
-
-    @staticmethod
     def get_chat_ids():
-        session = db.session
         if not AllChats.available_chats:
-            AllChats.available_chats = session.query(TelegramChat).all()
-        return [chat.chat_id for chat in AllChats.available_chats]
+            session = db.session
+            AllChats.available_chats = [chat.chat_id for chat in session.query(TelegramChat).all()]
+        return AllChats.available_chats
 
     @staticmethod
     def refresh_chats():
@@ -35,8 +28,7 @@ class AllChats:
 
     @staticmethod
     def ban(bot, current_chat_id, user):
-        for chat in AllChats.get_chats():
-            chat_id = chat.chat_id
+        for chat_id in AllChats.get_chat_ids():
             try:
                 if not user.user_id:
                     chat_id == current_chat_id and send_message(bot, chat_id, '用户尚未发言，暂时无法踢出。')
@@ -55,8 +47,7 @@ class AllChats:
 
     @staticmethod
     def unban(bot, current_chat_id, user):
-        for chat in AllChats.get_chats():
-            chat_id = chat.chat_id
+        for chat_id in AllChats.get_chat_ids():
             try:
                 if not user.user_id:
                     chat_id == current_chat_id and send_message(bot, chat_id, '未找到该用户，请联系管理员排查')
@@ -127,9 +118,9 @@ class TelegramChat(db.Model):
         if instance:
             result = instance, False
         else:
-            instance = session.add(cls(chat_id=chat_id, name=chat_name, status=True))
+            session.add(cls(chat_id=chat_id, name=chat_name, status=True))
             session.commit()
-            result = instance, True
+            result = None, True
             logger.info(f"chat({chat_id},{chat_name}) added!")
 
         # 更新所有的listener
