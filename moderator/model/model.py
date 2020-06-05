@@ -43,6 +43,7 @@ class AllChats:
                     chat_id == current_chat_id and send_message(bot, chat_id, '用户尚未发言，暂时无法踢出。')
                     continue
 
+                logger.info(f"chat_id: {chat_id}, banning: {user}")
                 bot.kick_chat_member(chat_id, user_id=user.user_id)
                 TelegramUser.set_status(user.user_id, False)
                 send_message(bot, chat_id, f'已将该用户 {user.mention()} 全球封杀')
@@ -106,7 +107,7 @@ class TelegramUser(db.Model):
             logger.info(f"{user} status updated to {user.status}")
 
     def __repr__(self):
-        return '<User %r>' % self.username
+        return f'<User {self.user_id}, {self.username}, {self.status}>'
 
 
 class TelegramChat(db.Model):

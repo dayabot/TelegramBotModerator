@@ -13,3 +13,6 @@ class User:
             return f"[@{self.username}](tg://user?id={self.user_id})"
         else:
             return self.username
+
+    def __str__(self):
+        return f"<User {self.user_id}, {self.username}, {self.is_active}>"
