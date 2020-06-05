@@ -4,9 +4,64 @@ import logging
 from sqlalchemy import Column
 
 from ..app import db
+from ..message import send_message
 
 logging.basicConfig(format='%(asctime)s - %(name)s - %(levelname)s - %(message)s', level=logging.INFO)
 logger = logging.getLogger(__name__)
+
+
+class AllChats:
+    # 实时的最新群组列表
+    available_chats = None
+
+    @staticmethod
+    def get_chats():
+        session = db.session
+        if not AllChats.available_chats:
+            AllChats.available_chats = session.query(TelegramChat).all()
+        return AllChats.available_chats
+
+    @staticmethod
+    def get_chat_ids():
+        session = db.session
+        if not AllChats.available_chats:
+            AllChats.available_chats = session.query(TelegramChat).all()
+        return [chat.chat_id for chat in AllChats.available_chats]
+
+    @staticmethod
+    def refresh_chats():
+        session = db.session
+        AllChats.available_chats = session.query(TelegramChat).all()
+
+    @staticmethod
+    def ban(bot, current_chat_id, user):
+        for chat in AllChats.get_chats():
+            chat_id = chat.chat_id
+            try:
+                if not user.user_id:
+                    # 只有当前群组回复
+                    chat_id == current_chat_id and send_message(bot, chat_id, '用户尚未发言，暂时无法踢出。')
+                    continue
+
+                bot.kick_chat_member(chat_id, user_id=user.user_id)
+                TelegramUser.set_status(user.user_id, False)
+                send_message(bot, chat_id, f'已将该用户 {user.mention()} 全球封杀')
+            except Exception as e:
+                send_message(bot, chat_id, str(e))
+
+    @staticmethod
+    def unban(bot, current_chat_id, user):
+        for chat in AllChats.get_chats():
+            chat_id = chat.chat_id
+            try:
+                if not user.user_id:
+                    chat_id == current_chat_id and send_message(bot, chat_id, '未找到该用户，请联系管理员排查')
+                    continue
+                bot.unban_chat_member(chat_id, user_id=user.user_id)
+                TelegramUser.set_status(user.user_id, True)
+                send_message(bot, chat_id, '知错能改，已将该用户解封！')
+            except Exception as e:
+                send_message(bot, chat_id, str(e))
 
 
 class TelegramUser(db.Model):
@@ -24,6 +79,7 @@ class TelegramUser(db.Model):
         else:
             session.add(cls(user_id=user_id, username=username))
             session.commit()
+            logger.info(f"User {user_id} {username} created!!!")
             return instance, True
 
     @classmethod
@@ -35,13 +91,6 @@ class TelegramUser(db.Model):
     def get_by_username(cls, username):
         instance = db.session.query(cls).filter_by(username=username).first()
         return instance
-
-    @classmethod
-    def delete(cls, user_id, username):
-        session = db.session
-        session.query(cls).filter(user_id=user_id, username=username).delete()
-        session.commit()
-        return True
 
     @staticmethod
     def is_active(username):
@@ -67,19 +116,30 @@ class TelegramChat(db.Model):
     status = Column(db.Boolean(), default=True)
 
     @classmethod
-    def add(cls, chat_id, name) -> ("TelegramChat", bool):
+    def add(cls, chat_id, chat_name) -> ("TelegramChat", bool):
         session = db.session
         instance = session.query(cls).filter_by(chat_id=chat_id).first()
         if instance:
-            return instance, False
+            result = instance, False
         else:
-            session.add(cls(chat_id=chat_id, name=name, status=True))
+            instance = session.add(cls(chat_id=chat_id, name=chat_name, status=True))
             session.commit()
-            return instance, True
+            result = instance, True
+            logger.info(f"chat({chat_id},{chat_name}) added!")
+
+        # 更新所有的listener
+        AllChats.refresh_chats()
+
+        return result
 
     @staticmethod
     def remove(chat_id) -> bool:
+        # 查询所有机器人所在群组
         session = db.session
         session.query(TelegramChat).filter(TelegramChat.chat_id == chat_id).delete()
         session.commit()
+
+        # 更新所有的listener
+        AllChats.refresh_chats()
+
         return True

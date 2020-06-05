@@ -2,10 +2,10 @@
 import logging
 
 # Enable logging
-from telegram import Update, MessageEntity, ParseMode
+from telegram import Update, MessageEntity
 
 from moderator.core.User import User
-from moderator.model.model import TelegramUser
+from moderator.model.model import TelegramUser, AllChats, TelegramChat
 
 logging.basicConfig(format='%(asctime)s - %(name)s - %(levelname)s - %(message)s', level=logging.INFO)
 logger = logging.getLogger(__name__)
@@ -16,10 +16,15 @@ def build_user(d_user):
 
 
 def get_chat_id_and_users(update: Update):
+    """ 用户主动输入做操作的场景 """
+    all_users = []
+
     message = update.message
     chat_id = message.chat.id
 
-    all_users = []
+    # 增加当前用户组至数据库
+    if chat_id not in AllChats.get_chat_ids():
+        TelegramChat.add(message.chat.id, message.chat.title)
 
     # 1. 直接回复的情况
     replay_user_id, replay_username = id_from_reply(message)
@@ -65,6 +70,3 @@ def ids_from_mentions(message):
 
     return ids
 
-
-def send_message(bot, chat_id, msg):
-    bot.send_message(chat_id, msg, parse_mode=ParseMode.MARKDOWN)

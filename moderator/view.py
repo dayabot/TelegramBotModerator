@@ -1,9 +1,10 @@
 # -*- coding: utf-8 -*-
 from telegram import Update, Bot, ParseMode
 
-from moderator.model.model import TelegramUser, TelegramChat
+from moderator.message import send_message
+from moderator.model.model import TelegramUser, TelegramChat, AllChats
 from moderator.permision import admin
-from moderator.util import get_chat_id_and_users, logger, send_message
+from moderator.util import get_chat_id_and_users, logger
 
 TIP_TEMPLATE = "回复消息或at用户名"
 
@@ -28,21 +29,12 @@ def start(bot: Bot, update: Update):
 def ban(bot: Bot, update: Update):
     logger.info("ban user...")
     chat_id, users = get_chat_id_and_users(update)
-
     if not users:
         send_message(bot, chat_id, TIP_TEMPLATE + '进行踢出～')
 
     for user in users:
-        try:
-            if not user.user_id:
-                send_message(bot, chat_id, '用户尚未发言，暂时无法踢出。')
-                continue
+        AllChats.ban(bot, chat_id, user)
 
-            bot.kick_chat_member(chat_id, user_id=user.user_id)
-            TelegramUser.set_status(user.user_id, False)
-            send_message(bot, chat_id, f'已将该用户 {user.mention()} 全球封杀')
-        except Exception as e:
-            send_message(bot, chat_id, str(e))
     logger.info("ban user done!!!")
 
 
@@ -52,16 +44,10 @@ def unban(bot: Bot, update: Update):
     chat_id, users = get_chat_id_and_users(update)
     if not users:
         send_message(bot, chat_id, TIP_TEMPLATE + '进行解冻')
+
     for user in users:
-        try:
-            if not user.user_id:
-                send_message(bot, chat_id, '未找到该用户，请联系管理员排查')
-                continue
-            bot.unban_chat_member(chat_id, user_id=user.user_id)
-            TelegramUser.set_status(user.user_id, True)
-            send_message(bot, chat_id, '知错能改，已将该用户解封！')
-        except Exception as e:
-            send_message(bot, chat_id, str(e))
+        AllChats.unban(bot, chat_id, user)
+
     logger.info("unban user done!!!")
 
 
@@ -93,7 +79,8 @@ def new_chat_members(bot: Bot, update: Update):
     for user in message.new_chat_members:
         if user.is_bot and user.id == bot.id:
             TelegramChat.add(message.chat.id, message.chat.title)
-            logger.info(f"  find bot {user.full_name}, chat {message.chat.title} added")
+        else:
+            TelegramUser.get_or_create(user.id, user.username)
 
     logger.info("new chat members... done!")
 
