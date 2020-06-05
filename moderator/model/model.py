@@ -23,7 +23,8 @@ class AllChats:
 
     @staticmethod
     def refresh_chats():
-        AllChats.available_chats = AllChats.get_chat_ids()
+        session = db.session
+        AllChats.available_chats = [chat.chat_id for chat in session.query(TelegramChat).all()]
 
     @staticmethod
     def ban(bot, current_chat_id, user):
