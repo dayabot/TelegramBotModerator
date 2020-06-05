@@ -36,7 +36,7 @@ class AllChats:
                 logger.info(f"chat_id: {chat_id}, banning: {user}")
                 bot.kick_chat_member(chat_id, user_id=user.user_id)
                 TelegramUser.set_status(user.user_id, False)
-                send_message(bot, chat_id, f'已将该用户 {user.mention()} 全球封杀')
+                send_message(bot, chat_id, f'将该用户 {user.mention()} 全球封杀')
 
             except Exception as e:
                 if "Not enough rights" in str(e) or "admin" in str(e):
