@@ -22,6 +22,7 @@ HELP = f"""
 def start(bot: Bot, update: Update):
     message = update.message
     chat_id = message.chat.id
+    logger.info(f"hello, current_chat: {chat_id}")
     bot.send_message(chat_id, HELP, parse_mode=ParseMode.MARKDOWN)
 
 

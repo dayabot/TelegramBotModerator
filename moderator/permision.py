@@ -20,6 +20,4 @@ def admin(f):
             update.message.reply_text("对不起, 您无管理员权限")
             return
 
-        f(bot, update)
-
     return wrapper
