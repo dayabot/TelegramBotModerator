@@ -11,11 +11,6 @@ logging.basicConfig(format='%(asctime)s - %(name)s - %(levelname)s - %(message)s
 logger = logging.getLogger(__name__)
 
 
-def error(bot, update, error):
-    """Log Errors caused by Updates."""
-    logger.error('Update "%s" caused error "%s"', update, error)
-
-
 def build_user(d_user):
     return User(d_user.user_id, d_user.username, d_user.status)
 

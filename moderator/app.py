@@ -8,6 +8,7 @@ app = Flask(__name__)
 app.config['SQLALCHEMY_DATABASE_URI'] = os.environ['DATABASE_URL']
 app.config['SQLALCHEMY_TRACK_MODIFICATIONS'] = False
 db = SQLAlchemy(app)
+migrate = Migrate(app, db)
 
 import telegram
 from telegram.ext import CommandHandler, MessageHandler, Filters, Dispatcher
@@ -15,9 +16,7 @@ from telegram.ext import CommandHandler, MessageHandler, Filters, Dispatcher
 TOKEN = os.environ['TELEGRAM_TOKEN']
 bot = telegram.Bot(token=TOKEN)
 
-from moderator.controller import start, ban, unban, get_status, reply_handler
-
-migrate = Migrate(app, db)
+from moderator.view import start, ban, unban, get_status, reply_handler, new_chat_members, left_chat_member
 
 dp = Dispatcher(bot, None, workers=10)
 # on different commands - answer in Telegram
@@ -26,6 +25,8 @@ dp.add_handler(CommandHandler("ban", ban))
 dp.add_handler(CommandHandler("unban", unban))
 dp.add_handler(CommandHandler("id", get_status))
 dp.add_handler(MessageHandler(Filters.text, reply_handler))
+dp.add_handler(MessageHandler(Filters.status_update.new_chat_members, new_chat_members))
+dp.add_handler(MessageHandler(Filters.status_update.left_chat_member, left_chat_member))
 
 
 @app.route('/hook', methods=['POST'])

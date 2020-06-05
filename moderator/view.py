@@ -1,7 +1,7 @@
 # -*- coding: utf-8 -*-
 from telegram import Update, Bot, ParseMode
 
-from moderator.model.model import TelegramUser
+from moderator.model.model import TelegramUser, TelegramChat
 from moderator.permision import admin
 from moderator.util import get_chat_id_and_users, logger, send_message
 
@@ -34,12 +34,13 @@ def ban(bot: Bot, update: Update):
 
     for user in users:
         try:
-            if user.user_id:
-                bot.kick_chat_member(chat_id, user_id=user.user_id)
-                TelegramUser.set_status(user.user_id, False)
-                send_message(bot, chat_id, f'已将该用户 {user.mention()} 全球封杀！')
-            else:
+            if not user.user_id:
                 send_message(bot, chat_id, '用户尚未发言，暂时无法踢出。')
+                continue
+
+            bot.kick_chat_member(chat_id, user_id=user.user_id)
+            TelegramUser.set_status(user.user_id, False)
+            send_message(bot, chat_id, f'已将该用户 {user.mention()} 全球封杀')
         except Exception as e:
             send_message(bot, chat_id, str(e))
     logger.info("ban user done!!!")
@@ -53,12 +54,12 @@ def unban(bot: Bot, update: Update):
         send_message(bot, chat_id, TIP_TEMPLATE + '进行解冻')
     for user in users:
         try:
-            if user.user_id:
-                bot.unban_chat_member(chat_id, user_id=user.user_id)
-                TelegramUser.set_status(user.user_id, True)
-                send_message(bot, chat_id, '知错能改，已将该用户解封！')
-            else:
+            if not user.user_id:
                 send_message(bot, chat_id, '未找到该用户，请联系管理员排查')
+                continue
+            bot.unban_chat_member(chat_id, user_id=user.user_id)
+            TelegramUser.set_status(user.user_id, True)
+            send_message(bot, chat_id, '知错能改，已将该用户解封！')
         except Exception as e:
             send_message(bot, chat_id, str(e))
     logger.info("unban user done!!!")
@@ -84,3 +85,27 @@ def reply_handler(bot: Bot, update: Update):
     t_user = update.message.from_user
     user, created = TelegramUser.get_or_create(t_user.id, t_user.username)
     logger.info(f"handle user done!! user: {user}, created: {created}")
+
+
+def new_chat_members(bot: Bot, update: Update):
+    logger.info("new chat members...")
+    message = update.message
+    for user in message.new_chat_members:
+        if user.is_bot and user.id == bot.id:
+            TelegramChat.add(message.chat.id, message.chat.title)
+            logger.info(f"  find bot {user.full_name}, chat {message.chat.title} added")
+
+    logger.info("new chat members... done!")
+
+
+def left_chat_member(bot: Bot, update: Update):
+    logger.info("left chat members...")
+    message = update.message
+    left_user = update.message.left_chat_member
+
+    # 将机器人所在群组删除
+    if left_user.is_bot and left_user.id == bot.id:
+        removed = TelegramChat.remove(message.chat.id)
+        logger.info(f"  find bot {left_user.full_name}, chat {message.chat.title} removed({removed})")
+
+    logger.info(f"done!!")

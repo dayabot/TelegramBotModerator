@@ -12,7 +12,7 @@ logger = logging.getLogger(__name__)
 class TelegramUser(db.Model):
     id = db.Column(db.Integer, primary_key=True, autoincrement=True)
     user_id = db.Column(db.Integer, unique=True, nullable=False)
-    username = db.Column(db.String(80), unique=True, nullable=False)
+    username = db.Column(db.String(128), unique=True, nullable=False)
     status = Column(db.Boolean(), default=True)
 
     @classmethod
@@ -58,3 +58,28 @@ class TelegramUser(db.Model):
 
     def __repr__(self):
         return '<User %r>' % self.username
+
+
+class TelegramChat(db.Model):
+    id = db.Column(db.Integer, primary_key=True, autoincrement=True)
+    chat_id = db.Column(db.BigInteger, unique=True, nullable=False)
+    name = db.Column(db.String(128), nullable=False)
+    status = Column(db.Boolean(), default=True)
+
+    @classmethod
+    def add(cls, chat_id, name) -> ("TelegramChat", bool):
+        session = db.session
+        instance = session.query(cls).filter_by(chat_id=chat_id).first()
+        if instance:
+            return instance, False
+        else:
+            session.add(cls(chat_id=chat_id, name=name, status=True))
+            session.commit()
+            return instance, True
+
+    @staticmethod
+    def remove(chat_id) -> bool:
+        session = db.session
+        session.query(TelegramChat).filter(TelegramChat.chat_id == chat_id).delete()
+        session.commit()
+        return True
