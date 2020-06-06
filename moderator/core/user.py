@@ -28,9 +28,19 @@ class User:
 
     @telegram_atom
     def promote(self, bot: Bot, chat_id):
-        bot.promote_chat_member(chat_id, self.user_id, can_change_info=1, can_post_messages=1,
-                                can_edit_messages=1, can_delete_messages=1, can_invite_users=1,
-                                can_restrict_members=1, can_pin_messages=1, can_promote_members=1)
+        bot.promote_chat_member(
+            chat_id,
+            self.user_id,
+            can_change_info=True,
+            # can_post_messages=False,
+            # can_edit_messages=False,
+            can_delete_messages=True,
+            can_invite_users=True,
+            can_restrict_members=True,
+            can_pin_messages=True,
+            can_promote_members=True
+        )
+
         send_message(bot, chat_id, f'已将该用户 {self.mention()} 设置为管理员')
 
     @telegram_atom
