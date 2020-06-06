@@ -3,6 +3,7 @@
 from telegram import Bot, Update
 
 from moderator.core.model.user import User
+from moderator.core.service.welcome import start
 from moderator.db.model import TelegramChat, TelegramUser
 from moderator.util.logger import logger
 
@@ -14,6 +15,7 @@ def new_chat_members(bot: Bot, update: Update):
         # 添加群组至数据库
         if user.is_bot and user.id == bot.id:
             TelegramChat.add(message.chat.id, message.chat.title)
+            start(bot, update)
 
         # 用户在黑名单中的话，无法加入
         user_db, __ = TelegramUser.get_or_create(user.id, user.username)
