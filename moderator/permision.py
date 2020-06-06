@@ -38,10 +38,9 @@ def telegram_atom(f):
             f(self, bot, chat_id)
 
         except BadRequest as e:
+            logger.error(e, str(e))
             if "Not enough rights" in str(e) or "admin" in str(e):
                 send_message(bot, chat_id, "⚠️ 当前机器人权限不足～")
-            else:
-                logger.error(e, str(e))
 
         except Exception as e:
             send_message(bot, chat_id, str(e), parse_mode=None)
