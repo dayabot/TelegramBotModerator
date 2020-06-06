@@ -2,20 +2,16 @@
 import logging
 
 # Enable logging
-from telegram import Update, MessageEntity
+from telegram import Update, MessageEntity, Bot
 
-from moderator.core.User import User
+from moderator.core.user import User
 from moderator.model.model import TelegramUser
 
 logging.basicConfig(format='%(asctime)s - %(name)s - %(levelname)s - %(message)s', level=logging.INFO)
 logger = logging.getLogger(__name__)
 
 
-def build_user(d_user):
-    return User(d_user.user_id, d_user.username, d_user.status)
-
-
-def get_chat_id_and_users(update: Update):
+def get_chat_id_and_users(bot: Bot, update: Update):
     """ 用户主动输入做操作的场景 """
     all_users = []
 
@@ -25,17 +21,15 @@ def get_chat_id_and_users(update: Update):
     # 1. 直接回复的情况
     replay_user_id, replay_username = id_from_reply(message)
     if replay_user_id and replay_username:
-        d_user, __ = TelegramUser.get_or_create(replay_user_id, replay_username)
-        all_users.append(build_user(d_user))
+        user, __ = TelegramUser.get_or_create(replay_user_id, replay_username)
+        all_users.append(User.build_user_from_db(user))
 
     # 2. at 对应的人
     mentioned_usernames = ids_from_mentions(message)
     for mentioned_username in mentioned_usernames:
-        d_user = TelegramUser.get_by_username(mentioned_username)
-        if d_user:
-            all_users.append(build_user(d_user))
-        else:
-            all_users.append(User(username=mentioned_username, user_id=0, is_active=True))
+        user = TelegramUser.get_by_username(mentioned_username)
+        if user:
+            all_users.append(User.build_user_from_db(user))
 
     return chat_id, all_users
 

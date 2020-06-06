@@ -16,7 +16,8 @@ from telegram.ext import CommandHandler, MessageHandler, Filters, Dispatcher
 TOKEN = os.environ['TELEGRAM_TOKEN']
 bot = telegram.Bot(token=TOKEN)
 
-from moderator.view import start, ban, unban, get_status, reply_handler, new_chat_members, left_chat_member
+from moderator.view import start, ban, unban, get_status, reply_handler, new_chat_members, left_chat_member, promote, \
+    demote, is_admin
 
 dp = Dispatcher(bot, None, workers=10)
 # on different commands - answer in Telegram
@@ -24,6 +25,9 @@ dp.add_handler(CommandHandler("help", start))
 dp.add_handler(CommandHandler("ban", ban))
 dp.add_handler(CommandHandler("unban", unban))
 dp.add_handler(CommandHandler("id", get_status))
+dp.add_handler(CommandHandler("addmanager", promote))
+dp.add_handler(CommandHandler("removemanager", demote))
+dp.add_handler(CommandHandler("manager", is_admin))
 dp.add_handler(MessageHandler(Filters.text, reply_handler))
 dp.add_handler(MessageHandler(Filters.status_update.new_chat_members, new_chat_members))
 dp.add_handler(MessageHandler(Filters.status_update.left_chat_member, left_chat_member))

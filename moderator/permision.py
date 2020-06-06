@@ -1,9 +1,14 @@
 # -*- coding: utf-8 -*-
+import logging
 
 from telegram.chatmember import ChatMember
+from telegram.error import BadRequest
 
 from moderator.message import send_message
 from moderator.model.model import TelegramChat, AllChats
+
+logging.basicConfig(format='%(asctime)s - %(name)s - %(levelname)s - %(message)s', level=logging.INFO)
+logger = logging.getLogger(__name__)
 
 
 def admin(f):
@@ -23,5 +28,19 @@ def admin(f):
             return
 
         f(bot, update)
+
+    return wrapper
+
+
+def telegram_atom(f):
+    def wrapper(self, bot, chat_id):
+        try:
+            f(self, bot, chat_id)
+        except BadRequest as e:
+            if "Not enough rights" in str(e) or "admin" in str(e):
+                send_message(bot, chat_id, "⚠️ 当前机器人权限不足～")
+        except Exception as e:
+            send_message(bot, chat_id, str(e), parse_mode=None)
+            logger.error(e, str(e))
 
     return wrapper

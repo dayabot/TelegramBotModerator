@@ -7,6 +7,6 @@ logging.basicConfig(format='%(asctime)s - %(name)s - %(levelname)s - %(message)s
 logger = logging.getLogger(__name__)
 
 
-def send_message(bot, chat_id, msg):
+def send_message(bot, chat_id, msg, parse_mode=ParseMode.MARKDOWN):
     logger.info(f"sending msg {chat_id}, {msg}")
-    bot.send_message(chat_id, msg, parse_mode=ParseMode.MARKDOWN)
+    bot.send_message(chat_id, msg, parse_mode=parse_mode)

@@ -4,7 +4,6 @@ import logging
 from sqlalchemy import Column
 
 from ..app import db
-from ..message import send_message
 
 logging.basicConfig(format='%(asctime)s - %(name)s - %(levelname)s - %(message)s', level=logging.INFO)
 logger = logging.getLogger(__name__)
@@ -22,43 +21,27 @@ class AllChats:
         return AllChats.available_chats
 
     @staticmethod
+    def get_chat_ids_with(current_chat_id):
+        chat_ids = AllChats.get_chat_ids()
+        chat_ids.insert(0, chat_ids.pop(chat_ids.index(current_chat_id)))
+        return chat_ids
+
+    @staticmethod
     def refresh_chats():
         session = db.session
         AllChats.available_chats = [chat.chat_id for chat in session.query(TelegramChat).all()]
 
     @staticmethod
     def ban(bot, current_chat_id, user):
-        for chat_id in AllChats.get_chat_ids():
-            try:
-                if not user.user_id:
-                    chat_id == current_chat_id and send_message(bot, chat_id, '用户尚未发言，暂时无法踢出。')
-                    continue
-
-                logger.info(f"chat_id: {chat_id}, banning: {user}")
-                bot.kick_chat_member(chat_id, user_id=user.user_id)
-                TelegramUser.set_status(user.user_id, False)
-                send_message(bot, chat_id, f'将该用户 {user.mention()} 全球封杀')
-
-            except Exception as e:
-                if "Not enough rights" in str(e) or "admin" in str(e):
-                    send_message(bot, chat_id, "⚠️ 当前机器人权限不足～")
-                else:
-                    logger.error(e, f"{str(e)}")
+        for chat_id in AllChats.get_chat_ids_with(current_chat_id):
+            TelegramUser.set_status(user.user_id, False)
+            user.ban(bot, chat_id)
 
     @staticmethod
     def unban(bot, current_chat_id, user):
-        for chat_id in AllChats.get_chat_ids():
-            try:
-                if not user.user_id:
-                    chat_id == current_chat_id and send_message(bot, chat_id, '未找到该用户，请联系管理员排查')
-                    continue
-
-                bot.unban_chat_member(chat_id, user_id=user.user_id)
-                TelegramUser.set_status(user.user_id, True)
-            except Exception as e:
-                logger.error(e, f"{str(e)}")
-            finally:
-                send_message(bot, chat_id, f'知错能改，已将该用户 {user.mention()} 从黑名单中移除。')
+        for chat_id in AllChats.get_chat_ids_with(current_chat_id):
+            user.unban(bot, chat_id)
+            TelegramUser.set_status(user.user_id, True)
 
 
 class TelegramUser(db.Model):
