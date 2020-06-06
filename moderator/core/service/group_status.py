@@ -2,6 +2,7 @@
 
 from telegram import Bot, Update
 
+from moderator.core.model.user import User
 from moderator.db.model import TelegramChat, TelegramUser
 from moderator.util.logger import logger
 
@@ -10,10 +11,15 @@ def new_chat_members(bot: Bot, update: Update):
     logger.info("new chat members...")
     message = update.message
     for user in message.new_chat_members:
+        # 添加群组至数据库
         if user.is_bot and user.id == bot.id:
             TelegramChat.add(message.chat.id, message.chat.title)
 
-        TelegramUser.get_or_create(user.id, user.username)
+        # 用户在黑名单中的话，无法加入
+        user_db, __ = TelegramUser.get_or_create(user.id, user.username)
+        user = User.build_user_from_db(user_db)
+        if not user.is_active:
+            user.ban(bot, chat_id=message.chat.id)
 
     logger.info("new chat members... done!")
 

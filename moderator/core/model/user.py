@@ -13,8 +13,8 @@ logger = logging.getLogger(__name__)
 CHAT_STATUS_D = {
     ChatMember.ADMINISTRATOR: '群管理员',
     ChatMember.CREATOR: '群主',
-    ChatMember.KICKED: '被踢出该群，无法自行加入',
-    ChatMember.LEFT: '不在该群中',
+    ChatMember.KICKED: '被踢出该群，无法加入',
+    ChatMember.LEFT: '已离群',
     ChatMember.MEMBER: '群成员',
     ChatMember.RESTRICTED: '被限制'
 }
@@ -28,6 +28,10 @@ class User:
 
     @telegram_atom
     def promote(self, bot: Bot, chat_id):
+        if self.status(bot, chat_id) != ChatMember.MEMBER:
+            send_message(bot, chat_id, f'操作失败，该用户 {self.mention()} 目前不是普通用户')
+            return
+
         bot.promote_chat_member(
             chat_id,
             self.user_id,
@@ -40,11 +44,14 @@ class User:
             can_pin_messages=True,
             can_promote_members=True
         )
-
         send_message(bot, chat_id, f'已将该用户 {self.mention()} 设置为管理员')
 
     @telegram_atom
     def demote(self, bot: Bot, chat_id):
+        if self.status(bot, chat_id) != ChatMember.ADMINISTRATOR:
+            send_message(bot, chat_id, f'操作失败，该用户 {self.mention()} 目前不是管理员')
+            return
+
         bot.promote_chat_member(chat_id, self.user_id, can_change_info=False, can_post_messages=False,
                                 can_edit_messages=False, can_delete_messages=False, can_invite_users=False,
                                 can_restrict_members=False, can_pin_messages=False, can_promote_members=False)
@@ -52,7 +59,8 @@ class User:
 
     @telegram_atom
     def ban(self, bot: Bot, chat_id):
-        bot.kick_chat_member(chat_id, user_id=self.user_id)
+        if self.status(bot, chat_id) == ChatMember.MEMBER:
+            bot.kick_chat_member(chat_id, user_id=self.user_id)
         send_message(bot, chat_id, f'将该用户 {self.mention()} 全球封杀({self.status_cn(bot, chat_id)})')
 
     @telegram_atom

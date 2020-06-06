@@ -13,7 +13,6 @@ from moderator.util.util import get_chat_id_and_users
 def promote(bot: Bot, update: Update):
     logger.info("promote user...")
     chat_id, users = get_chat_id_and_users(bot, update)
-
     if not users:
         send_message(bot, chat_id, TIP_TEMPLATE + '进行管理员添加操作')
 
@@ -27,7 +26,6 @@ def promote(bot: Bot, update: Update):
 def demote(bot: Bot, update: Update):
     logger.info("promote user...")
     chat_id, users = get_chat_id_and_users(bot, update)
-
     if not users:
         send_message(bot, chat_id, TIP_TEMPLATE + '进行管理员添加操作')
 

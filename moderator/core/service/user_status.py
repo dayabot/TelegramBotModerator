@@ -17,7 +17,7 @@ def get_status(bot: Bot, update: Update):
         send_message(bot, chat_id, TIP_TEMPLATE + '进行用户状态查看')
 
     for user in users:
-        memo = "状态正常" if user.is_active else "已被全球拉黑"
+        memo = "不在黑名单中" if user.is_active else "已被全球拉黑"
         send_message(bot, chat_id, f'该用户 {user.mention()} {memo}({user.status_cn(bot, chat_id)})')
 
     logger.info("get_status done!!")

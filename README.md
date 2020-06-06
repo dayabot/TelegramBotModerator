@@ -18,4 +18,5 @@
 ### 四、其他
 - [x] 权限管控：群主/管理员可以操作机器人
 
-
+## 状态流转
+![image.png](https://i.loli.net/2020/06/06/FAEQcJ6zxUWnbPi.png)
