@@ -1,14 +1,10 @@
 # -*- coding: utf-8 -*-
-import logging
 
 # Enable logging
 from telegram import Update, MessageEntity, Bot
 
-from moderator.core.user import User
-from moderator.model.model import TelegramUser
-
-logging.basicConfig(format='%(asctime)s - %(name)s - %(levelname)s - %(message)s', level=logging.INFO)
-logger = logging.getLogger(__name__)
+from moderator.core.model.user import User
+from moderator.db.model import TelegramUser
 
 
 def get_chat_id_and_users(bot: Bot, update: Update):

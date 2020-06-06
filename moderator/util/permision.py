@@ -1,14 +1,11 @@
 # -*- coding: utf-8 -*-
-import logging
 
 from telegram.chatmember import ChatMember
 from telegram.error import BadRequest
 
-from moderator.message import send_message
-from moderator.model.model import TelegramChat, AllChats
-
-logging.basicConfig(format='%(asctime)s - %(name)s - %(levelname)s - %(message)s', level=logging.INFO)
-logger = logging.getLogger(__name__)
+from moderator.db.model import TelegramChat, AllChats
+from moderator.util.logger import logger
+from moderator.util.message import send_message
 
 
 def admin(f):

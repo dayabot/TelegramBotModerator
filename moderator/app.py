@@ -1,5 +1,6 @@
 import os
 
+import telegram
 from flask import Flask, request
 from flask_migrate import Migrate
 from flask_sqlalchemy import SQLAlchemy
@@ -10,14 +11,16 @@ app.config['SQLALCHEMY_TRACK_MODIFICATIONS'] = False
 db = SQLAlchemy(app)
 migrate = Migrate(app, db)
 
-import telegram
-from telegram.ext import CommandHandler, MessageHandler, Filters, Dispatcher
-
 TOKEN = os.environ['TELEGRAM_TOKEN']
 bot = telegram.Bot(token=TOKEN)
 
-from moderator.view import start, ban, unban, get_status, reply_handler, new_chat_members, left_chat_member, promote, \
-    demote, is_admin
+from telegram.ext import CommandHandler, MessageHandler, Filters, Dispatcher
+
+from moderator.core.service.admin import promote, demote, is_admin
+from moderator.core.service.ban import ban, unban
+from moderator.core.service.group_status import reply_handler, new_chat_members, left_chat_member
+from moderator.core.service.user_status import get_status
+from moderator.core.service.welcome import start
 
 dp = Dispatcher(bot, None, workers=10)
 # on different commands - answer in Telegram
