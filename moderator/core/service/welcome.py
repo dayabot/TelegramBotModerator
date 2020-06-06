@@ -6,7 +6,7 @@ from moderator.util.logger import logger
 TIP_TEMPLATE = "回复消息或at用户名"
 
 HELP = f"""
-强大的黑名单机器人，精准定位，全球封杀🔞：
+**强大的黑名单机器人，精准定位，全球封杀🔞：**
 
 *限管理员操作*（{TIP_TEMPLATE}触发）:
   - /help: 查看帮助
@@ -15,6 +15,9 @@ HELP = f"""
   - /addManager <用户>: 增加管理员(管理)
   - /removeManager <用户>: 删除管理员(管理)
   - /id <用户>: 查询某用户当前状态(管理)
+
+  - /groups <用户>: 查询当前机器人所在群组(管理)
+
 """
 
 

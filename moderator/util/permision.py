@@ -15,6 +15,11 @@ def admin(f):
         user_id = message.from_user.id
         chat_member = bot.get_chat_member(chat_id, user_id)
 
+        # 私聊的情况
+        if message.chat.type == "private":
+            send_message(bot, chat_id, "请在群组中操作")
+            return
+
         # 增加当前用户组至数据库
         if chat_id not in AllChats.get_chat_ids():
             TelegramChat.add(message.chat.id, message.chat.title)

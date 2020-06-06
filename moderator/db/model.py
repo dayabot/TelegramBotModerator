@@ -21,6 +21,11 @@ class AllChats:
         return AllChats.available_chats
 
     @staticmethod
+    def get_chat_names():
+        session = db.session
+        return [chat.name for chat in session.query(TelegramChat).all()]
+
+    @staticmethod
     def get_chat_ids_with(current_chat_id):
         chat_ids = AllChats.get_chat_ids()
         chat_ids.insert(0, chat_ids.pop(chat_ids.index(current_chat_id)))

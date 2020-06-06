@@ -21,6 +21,7 @@ from moderator.core.service.ban import ban, unban
 from moderator.core.service.group_status import reply_handler, new_chat_members, left_chat_member
 from moderator.core.service.user_status import get_status
 from moderator.core.service.welcome import start
+from moderator.core.service.meta import groups
 
 dp = Dispatcher(bot, None, workers=10)
 # on different commands - answer in Telegram
@@ -31,6 +32,7 @@ dp.add_handler(CommandHandler("id", get_status))
 dp.add_handler(CommandHandler("addmanager", promote))
 dp.add_handler(CommandHandler("removemanager", demote))
 dp.add_handler(CommandHandler("manager", is_admin))
+dp.add_handler(CommandHandler("groups", groups))
 dp.add_handler(MessageHandler(Filters.text, reply_handler))
 dp.add_handler(MessageHandler(Filters.status_update.new_chat_members, new_chat_members))
 dp.add_handler(MessageHandler(Filters.status_update.left_chat_member, left_chat_member))
